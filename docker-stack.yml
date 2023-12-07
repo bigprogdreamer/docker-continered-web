@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  php-server:
+    image: php-server
+    container_name: php-container
+    ports:
+      - "8081:80"
+    deploy:
+      replicas: 2
+        constraints:
+          - node.role==worker
+
+  mysql-container:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: flowers
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+    volumes:
+      - mysql-container_volume:/var/lib/mysql
+      - ./docker-data-for-php-entry:/docker-entrypoint-initdb.d
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role==manager
+
+volumes:
+  mysql-container_volume:
